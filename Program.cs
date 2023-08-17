@@ -238,7 +238,7 @@ namespace AsyncStream
             await foreach (var number in GetNumbersAsync())
                 Console.WriteLine(number);
 
-            Repository repo = new Repository();
+            Repository repo = new ();
             IAsyncEnumerable<string> data = repo.GetDataAsync();
             await foreach (var name in data)
             {
@@ -257,7 +257,7 @@ namespace AsyncStream
     }
     class Repository
     {
-        string[] data = { "Tom", "Sam", "Kate", "Alice", "Bob" };
+        readonly string[] data = { "Tom", "Sam", "Kate", "Alice", "Bob" };
         public async IAsyncEnumerable<string> GetDataAsync()
         {
             for (int i = 0; i < data.Length; i++)
@@ -269,5 +269,4 @@ namespace AsyncStream
         }
     }
 }
-
 #endregion
