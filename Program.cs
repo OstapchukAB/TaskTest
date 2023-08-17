@@ -80,27 +80,61 @@
 #endregion
 
 #region Parallel.Invoke
-// метод Parallel.Invoke выполняет три метода
-Parallel.Invoke(
-    Print,
-    () =>
+//// метод Parallel.Invoke выполняет три метода
+//Parallel.Invoke(
+//    Print,
+//    () =>
+//    {
+//        Console.WriteLine($"Выполняется задача {Task.CurrentId}");
+//        Thread.Sleep(3000);
+//    },
+//    () => Square(5)
+//);
+//Console.WriteLine($"Завершение метода Main");
+//void Print()
+//{
+//    Console.WriteLine($"Выполняется задача Print {Task.CurrentId}");
+//    Thread.Sleep(3000);
+//}
+//// вычисляем квадрат числа
+//void Square(int n)
+//{
+//    Console.WriteLine($"Выполняется задача Square {Task.CurrentId}");
+//    Thread.Sleep(3000);
+//    Console.WriteLine($"Результат {n * n}");
+//}
+#endregion
+#region Async Example 01
+class Program
+{
+    async static Task Main(string[] args)
     {
-        Console.WriteLine($"Выполняется задача {Task.CurrentId}");
-        Thread.Sleep(3000);
-    },
-    () => Square(5)
-);
-Console.WriteLine($"Завершение метода Main");
-void Print()
-{
-    Console.WriteLine($"Выполняется задача Print {Task.CurrentId}");
-    Thread.Sleep(3000);
-}
-// вычисляем квадрат числа
-void Square(int n)
-{
-    Console.WriteLine($"Выполняется задача Square {Task.CurrentId}");
-    Thread.Sleep(3000);
-    Console.WriteLine($"Результат {n * n}");
-}
+        while (true)
+        {
+            var task = await PrintAsync();   // вызов асинхронного метода
+            Console.WriteLine("Некоторые действия в методе Main");
+            if (task.IsCompletedSuccessfully)
+                break;
+
+        }
+    }
+        static void Print()
+        {
+            Thread.Sleep(3000);     // имитация продолжительной работы
+            Console.WriteLine("Hello METANIT.COM");
+        }
+
+        // определение асинхронного метода
+        async static Task<Task> PrintAsync()
+        {
+
+            Console.WriteLine("Начало метода PrintAsync"); // выполняется синхронно
+            Task task = new Task(() => Print());                // выполняется асинхронно
+            task.Start();
+            await task;
+
+            Console.WriteLine("Конец метода PrintAsync");
+            return task;
+        }
+    }
 #endregion
