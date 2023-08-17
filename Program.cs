@@ -20,7 +20,6 @@
 //Console.WriteLine($"completedInnerTask:{tasks[1]?.IsCompletedSuccessfully}");
 //Console.WriteLine("End of Main");
 #endregion
-
 #region Example 02
 //using System.Runtime.CompilerServices;
 //using System.Threading.Tasks;
@@ -54,7 +53,6 @@
 
 
 #endregion
-
 #region continuation task
 //Task task1 = new Task(() =>
 //{
@@ -78,7 +76,6 @@
 //    Thread.Sleep(3000);
 //}
 #endregion
-
 #region Parallel.Invoke
 //// метод Parallel.Invoke выполняет три метода
 //Parallel.Invoke(
@@ -105,36 +102,91 @@
 //}
 #endregion
 #region Async Example 01
+//class Program
+//{
+//    async static Task Main(string[] args)
+//    {
+//        while (true)
+//        {
+//            var task = await PrintAsync();   // вызов асинхронного метода
+//            Console.WriteLine("Некоторые действия в методе Main");
+//            if (task.IsCompletedSuccessfully)
+//                break;
+
+//        }
+//    }
+//        static void Print()
+//        {
+//            Thread.Sleep(3000);     // имитация продолжительной работы
+//            Console.WriteLine("Hello METANIT.COM");
+//        }
+
+//        // определение асинхронного метода
+//        async static Task<Task> PrintAsync()
+//        {
+
+//            Console.WriteLine("Начало метода PrintAsync"); // выполняется синхронно
+//            Task task = new Task(() => Print());                // выполняется асинхронно
+//            task.Start();
+//            await task;
+
+//            Console.WriteLine("Конец метода PrintAsync");
+//            return task;
+//        }
+//    }
+#endregion
+#region Async Example 02
+//class Program
+//{
+//    async static Task Main(string[] args)
+//    {
+//        Console.WriteLine($"Main Works Start {DateTime.Now}");
+//        var task = PrintAsync("Hello Metanit.com"); // задача начинает выполняться
+//                                                    //while (task.IsCompleted ==false)
+//                                                    //{
+//        //await task;
+//        Console.WriteLine(task.Result.ToString());
+//        Console.WriteLine($"Main Works End {DateTime.Now}");
+
+//       // }
+
+//        //await task; // ожидаем завершения задачи
+//    }
+//    async static Task<DateTime> PrintAsync(string message)
+//    {
+//        await Task.Delay(3000);
+//        Console.WriteLine(message);
+//        return  DateTime.Now;
+//    }
+//}
+#endregion
+#region Async Example 03
+using System.Threading.Tasks;
 class Program
 {
+    
     async static Task Main(string[] args)
     {
-        while (true)
+        // определяем и запускаем задачи
+        Task<int>[] tasks = new Task<int> [100];
+        for (int i=0;i<tasks.Length;i++)
         {
-            var task = await PrintAsync();   // вызов асинхронного метода
-            Console.WriteLine("Некоторые действия в методе Main");
-            if (task.IsCompletedSuccessfully)
-                break;
-
+            var j = i;
+            tasks[j] = SquareAsync(j);
         }
+
+
+       
+        var result=await Task.WhenAny(tasks);
+        Console.WriteLine($"id={result.Id} result:{result.Result} {result.Status}");
+        var results = await Task.WhenAll(tasks);
+        foreach (var task in results) 
+            Console.WriteLine(task);
     }
-        static void Print()
-        {
-            Thread.Sleep(3000);     // имитация продолжительной работы
-            Console.WriteLine("Hello METANIT.COM");
-        }
-
-        // определение асинхронного метода
-        async static Task<Task> PrintAsync()
-        {
-
-            Console.WriteLine("Начало метода PrintAsync"); // выполняется синхронно
-            Task task = new Task(() => Print());                // выполняется асинхронно
-            task.Start();
-            await task;
-
-            Console.WriteLine("Конец метода PrintAsync");
-            return task;
-        }
+    async static Task<int> SquareAsync(int n)
+    {
+        await Task.Delay(3000);
+        return n * n;
     }
+}
 #endregion
