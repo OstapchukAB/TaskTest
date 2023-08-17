@@ -192,38 +192,82 @@
 #endregion
 
 #region Async Обработка ошибок в асинхронных методах
-class Program
-{
+//class Program
+//{
 
-    async static Task Main(string[] args)
+//    async static Task Main(string[] args)
+//    {
+//        var task1 = PrintAsync("H");
+//        var task2 = PrintAsync("Hi");
+//        var allTasks = Task.WhenAll(task1, task2);
+//        try
+//        {
+//            await allTasks;
+//        }
+//        catch (Exception ex)
+//        {
+//            Console.WriteLine($"Exception: {ex.Message}");
+//            Console.WriteLine($"IsFaulted: {allTasks.IsFaulted}");
+//            if (allTasks.Exception is not null)
+//            {
+//                foreach (var exception in allTasks.Exception.InnerExceptions)
+//                {
+//                    Console.WriteLine($"InnerException: {exception.Message}");
+//                }
+//            }
+//        }
+//    }
+//    async static Task PrintAsync(string message)
+//    {
+//        // если длина строки меньше 3 символов, генерируем исключение
+//        if (message.Length < 3)
+//            throw new ArgumentException($"Invalid string [{message}] length: {message.Length}");
+//        await Task.Delay(100);     // имитация продолжительной операции
+//        Console.WriteLine(message);
+//    }
+//}
+#endregion
+
+#region Асинхронные стримы
+namespace AsyncStream
+{
+    static class Program
     {
-        var task1 = PrintAsync("H");
-        var task2 = PrintAsync("Hi");
-        var allTasks = Task.WhenAll(task1, task2);
-        try
+        public async static Task Main()
         {
-            await allTasks;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Exception: {ex.Message}");
-            Console.WriteLine($"IsFaulted: {allTasks.IsFaulted}");
-            if (allTasks.Exception is not null)
+            await foreach (var number in GetNumbersAsync())
+                Console.WriteLine(number);
+
+            Repository repo = new Repository();
+            IAsyncEnumerable<string> data = repo.GetDataAsync();
+            await foreach (var name in data)
             {
-                foreach (var exception in allTasks.Exception.InnerExceptions)
-                {
-                    Console.WriteLine($"InnerException: {exception.Message}");
-                }
+                Console.WriteLine(name);
+            }
+
+        }
+        async static IAsyncEnumerable<int> GetNumbersAsync()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                await Task.Delay(100);
+                yield return i;
             }
         }
     }
-    async static Task PrintAsync(string message)
+    class Repository
     {
-        // если длина строки меньше 3 символов, генерируем исключение
-        if (message.Length < 3)
-            throw new ArgumentException($"Invalid string [{message}] length: {message.Length}");
-        await Task.Delay(100);     // имитация продолжительной операции
-        Console.WriteLine(message);
+        string[] data = { "Tom", "Sam", "Kate", "Alice", "Bob" };
+        public async IAsyncEnumerable<string> GetDataAsync()
+        {
+            for (int i = 0; i < data.Length; i++)
+            {
+                Console.WriteLine($"Получаем {i + 1} элемент");
+                await Task.Delay(500);
+                yield return data[i];
+            }
+        }
     }
 }
+
 #endregion
