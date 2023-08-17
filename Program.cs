@@ -161,32 +161,69 @@
 //}
 #endregion
 #region Async Example 03
-using System.Threading.Tasks;
+//using System.Threading.Tasks;
+//class Program
+//{
+
+//    async static Task Main(string[] args)
+//    {
+//        // определяем и запускаем задачи
+//        Task<int>[] tasks = new Task<int> [100];
+//        for (int i=0;i<tasks.Length;i++)
+//        {
+//            var j = i;
+//            tasks[j] = SquareAsync(j);
+//        }
+
+
+
+//        var result=await Task.WhenAny(tasks);
+//        Console.WriteLine($"id={result.Id} result:{result.Result} {result.Status}");
+//        var results = await Task.WhenAll(tasks);
+//        foreach (var task in results) 
+//            Console.WriteLine(task);
+//    }
+//    async static Task<int> SquareAsync(int n)
+//    {
+//        await Task.Delay(3000);
+//        return n * n;
+//    }
+//}
+#endregion
+
+#region Async Обработка ошибок в асинхронных методах
 class Program
 {
-    
+
     async static Task Main(string[] args)
     {
-        // определяем и запускаем задачи
-        Task<int>[] tasks = new Task<int> [100];
-        for (int i=0;i<tasks.Length;i++)
+        var task1 = PrintAsync("H");
+        var task2 = PrintAsync("Hi");
+        var allTasks = Task.WhenAll(task1, task2);
+        try
         {
-            var j = i;
-            tasks[j] = SquareAsync(j);
+            await allTasks;
         }
-
-
-       
-        var result=await Task.WhenAny(tasks);
-        Console.WriteLine($"id={result.Id} result:{result.Result} {result.Status}");
-        var results = await Task.WhenAll(tasks);
-        foreach (var task in results) 
-            Console.WriteLine(task);
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception: {ex.Message}");
+            Console.WriteLine($"IsFaulted: {allTasks.IsFaulted}");
+            if (allTasks.Exception is not null)
+            {
+                foreach (var exception in allTasks.Exception.InnerExceptions)
+                {
+                    Console.WriteLine($"InnerException: {exception.Message}");
+                }
+            }
+        }
     }
-    async static Task<int> SquareAsync(int n)
+    async static Task PrintAsync(string message)
     {
-        await Task.Delay(3000);
-        return n * n;
+        // если длина строки меньше 3 символов, генерируем исключение
+        if (message.Length < 3)
+            throw new ArgumentException($"Invalid string [{message}] length: {message.Length}");
+        await Task.Delay(100);     // имитация продолжительной операции
+        Console.WriteLine(message);
     }
 }
 #endregion
