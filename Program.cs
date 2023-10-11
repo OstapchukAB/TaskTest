@@ -229,43 +229,92 @@
 #endregion
 
 #region Асинхронные стримы
-namespace AsyncStream
+//namespace AsyncStream
+//{
+//    static class Program
+//    {
+//        public async static Task Main()
+//        {
+//            await foreach (var number in GetNumbersAsync())
+//                Console.WriteLine(number);
+
+//            Repository repo = new ();
+//            IAsyncEnumerable<string> data = repo.GetDataAsync();
+//            await foreach (var name in data)
+//            {
+//                Console.WriteLine(name);
+//            }
+
+//        }
+//        async static IAsyncEnumerable<int> GetNumbersAsync()
+//        {
+//            for (int i = 0; i < 10; i++)
+//            {
+//                await Task.Delay(100);
+//                yield return i;
+//            }
+//        }
+//    }
+//    class Repository
+//    {
+//        readonly string[] data = { "Tom", "Sam", "Kate", "Alice", "Bob" };
+//        public async IAsyncEnumerable<string> GetDataAsync()
+//        {
+//            for (int i = 0; i < data.Length; i++)
+//            {
+//                Console.WriteLine($"Получаем {i + 1} элемент");
+//                await Task.Delay(500);
+//                yield return data[i];
+//            }
+//        }
+//    }
+//}
+#endregion
+#region Исследование работы вложенных асинхронных задач
+namespace InliteAsyncTask
 {
     static class Program
     {
-        public async static Task Main()
+        static async Task Main(string[] args) 
         {
-            await foreach (var number in GetNumbersAsync())
-                Console.WriteLine(number);
+            Console.WriteLine("Start Main");
+            var task1=Task.Run(async() => 
+            {
+                Console.WriteLine("running task1");
+                Thread.Sleep(100);
+                
+                var task2= Task.Run(async () => 
+                {
+                    Console.WriteLine("running task2");
+                    Thread.Sleep(1000);
+                   List<Task<int>> tasks= new List<Task<int>>();
+                    for (int i = 0; i < 12; i++)
+                    {
+                        var j = i;
+                        var task = Task.Run(() =>
+                        {
+                            Console.WriteLine($"running task 3_{j}");
+                            Thread.Sleep(1000);
+                            Console.WriteLine($"end task 3_{j}");
+                            return j;
+                        });
+                        tasks.Add(task);
+                    }
+                    await Task.WhenAll(tasks);
+                    //foreach (var task in tasks)
+                    //{
+                    //    Console.WriteLine(task.Result);
+                    //}
+                    Console.WriteLine("end task2");
+                });
+                await task2;
+                Console.WriteLine("end task1");
+            });
 
-            Repository repo = new ();
-            IAsyncEnumerable<string> data = repo.GetDataAsync();
-            await foreach (var name in data)
-            {
-                Console.WriteLine(name);
-            }
+            await task1;
+            //await Task.WhenAll(task1);
+            Console.WriteLine("End Main");
 
-        }
-        async static IAsyncEnumerable<int> GetNumbersAsync()
-        {
-            for (int i = 0; i < 10; i++)
-            {
-                await Task.Delay(100);
-                yield return i;
-            }
-        }
-    }
-    class Repository
-    {
-        readonly string[] data = { "Tom", "Sam", "Kate", "Alice", "Bob" };
-        public async IAsyncEnumerable<string> GetDataAsync()
-        {
-            for (int i = 0; i < data.Length; i++)
-            {
-                Console.WriteLine($"Получаем {i + 1} элемент");
-                await Task.Delay(500);
-                yield return data[i];
-            }
         }
     }
 }
