@@ -275,44 +275,37 @@ namespace InliteAsyncTask
 {
     static class Program
     {
-        static async Task Main(string[] args) 
+        static void Main(string[] args)
         {
             Console.WriteLine("Start Main");
-            var task1=Task.Run(async() => 
+            var task=Task.Run(async () =>
             {
                 Console.WriteLine("running task1");
                 Thread.Sleep(100);
-                
-                var task2= Task.Run(async () => 
-                {
-                    Console.WriteLine("running task2");
-                    Thread.Sleep(1000);
-                   List<Task<int>> tasks= new List<Task<int>>();
-                    for (int i = 0; i < 12; i++)
-                    {
-                        var j = i;
-                        var task = Task.Run(() =>
-                        {
-                            Console.WriteLine($"running task 3_{j}");
-                            Thread.Sleep(1000);
-                            Console.WriteLine($"end task 3_{j}");
-                            return j;
-                        });
-                        tasks.Add(task);
-                    }
-                    await Task.WhenAll(tasks);
-                    //foreach (var task in tasks)
-                    //{
-                    //    Console.WriteLine(task.Result);
-                    //}
-                    Console.WriteLine("end task2");
-                });
-                await task2;
+
+                await Task.Run(async () =>
+                 {
+                     Console.WriteLine("running task2");
+                     Thread.Sleep(1000);
+                     List<Task<int>> tasks = new();
+                     for (int i = 0; i < 12; i++)
+                     {
+                         var j = i;
+                         var task = Task.Run(() =>
+                         {
+                             Console.WriteLine($"running task 3_{j}");
+                             Thread.Sleep(2000);
+                             Console.WriteLine($"end task 3_{j}");
+                             return j;
+                         });
+                         tasks.Add(task);
+                     }
+                     await Task.WhenAll(tasks);
+                     Console.WriteLine("end task2");
+                 });
                 Console.WriteLine("end task1");
             });
-
-            await task1;
-            //await Task.WhenAll(task1);
+            task.Wait();
             Console.WriteLine("End Main");
 
         }
